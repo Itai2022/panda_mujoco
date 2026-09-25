@@ -244,6 +244,6 @@ class PickPlaceTask:
             docs.mkdir(exist_ok=True, parents=True)
 
             print(f"Saving video with {len(self.video)} frames...")
-            iio.imwrite(docs / "demo.gif", self.video, fps=fps)
+            iio.imwrite(docs / "demo.gif", self.video, fps=fps, loop=0)
             print("Video Saved.")
             self.video = []
