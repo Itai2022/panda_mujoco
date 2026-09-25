@@ -1,0 +1,5 @@
+[tool.basedpyright]
+stubPath = "./typings"
+
+# [tool.ruff]
+# stubPath = "./typings"
