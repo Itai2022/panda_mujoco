@@ -2,10 +2,8 @@
 
 > A MuJoCo simulation platform for the Franka Emika Panda arm, integrating **Pinocchio inverse kinematics** and **OMPL motion planning** for complete pick-and-place and obstacle avoidance.
 
-<!-- ![demo](docs/demo.mp4) -->
-<video src="docs/demo.mp4" controls="controls" width="100%" autoplay loop muted>
-  Your browser does not support the video tag.
-</video>
+![demo](docs/demo.gif)
+
 
 ---
 
