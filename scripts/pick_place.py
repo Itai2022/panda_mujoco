@@ -8,9 +8,11 @@ def main() -> None:
         "./models/panda_simulation.xml",
         "./models/panda_urdf/panda_z_offset.urdf",
         target_frame="gripper",
+        height=480,
+        width=640,
     )
     try:
-        PickPlaceTask(arm, target_body).run()
+        PickPlaceTask(arm, target_body).run(record_video=True)
     finally:
         arm.close()
 

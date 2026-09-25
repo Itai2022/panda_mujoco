@@ -1,19 +1,20 @@
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Callable
 
 import mujoco
 import numpy as np
 import pinocchio as pin
 
-from ..ompl_planner import PlanConfig
 from ..ik_solver import IKConfig
+from ..ompl_planner import PlanConfig
 from ..robot import PandaArm
-from .task_utils import Trajectory, PickPlaceState
 from ..utils import (
     motion_from_translation,
     rotation_around_x,
     rotation_around_z,
 )
+from .task_utils import PickPlaceState, Trajectory
 
 
 @dataclass
@@ -57,6 +58,8 @@ class PickPlaceTask:
             PickPlaceState.MOVE_TO_TARGET: self._step_move_to_target,
             PickPlaceState.RESET: self._step_reset,
         }
+
+        self.video = []
 
     def _measure_body_size(self, name: str) -> float:
         geom_id = self.arm.mj_data.geom(name).id
@@ -215,16 +218,32 @@ class PickPlaceTask:
         if not self.traj.is_exhausted():
             self._send_next_ctrl()
         else:
-            self.arm.close_gripper(self.target_body)
+            self.arm.close_gripper()
 
     def step(self) -> None:
         self._handlers[self.state]()
 
-    def run(self) -> None:
+    def run(self, record_video=False, fps=30) -> None:
+        sim_dt = self.arm.mj_model.opt.timestep
+        render_interval = max(1, int(1.0 / (fps * sim_dt)))
+        step = 0
         try:
             while self.arm.is_running():
                 self.step()
                 mujoco.mj_step(self.arm.mj_model, self.arm.mj_data)
+                if record_video and step % render_interval == 0:
+                    self.video.append(self.arm.render())
+                step += 1
                 self.arm.sync()
         except KeyboardInterrupt:
             pass
+        finally:
+            import imageio.v3 as iio
+
+            docs = Path(__file__).resolve().parents[2] / "docs"
+            docs.mkdir(exist_ok=True, parents=True)
+
+            print(f"Saving video with {len(self.video)} frames...")
+            iio.imwrite(docs / "demo.mp4", self.video, fps=fps)
+            print("Video Saved.")
+            self.video = []

@@ -57,6 +57,8 @@ class MujocoEnv:
         camera_id: Union[int, str, mujoco.MjvCamera] = -1,
         mode="rgb",
     ) -> np.ndarray:
+        if camera_id == -1 and self.viewer_handle is not None:
+            camera_id = self.viewer_handle.cam
         out = None
         self.renderer.update_scene(self.mj_data, camera_id)
         if mode == "seg":
